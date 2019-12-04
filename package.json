@@ -1,0 +1,26 @@
+{
+  "name": "nodejs_gmp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "task1": "nodemon ./task_1.1/index.js",
+    "task2": "nodemon ./task_1.2/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yralko/nodejs_gmp.git"
+  },
+  "keywords": [],
+  "author": "Yauheni Ralko <evgeny.ralko@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yralko/nodejs_gmp/issues"
+  },
+  "homepage": "https://github.com/yralko/nodejs_gmp#readme",
+  "dependencies": {
+    "csvtojson": "^2.0.10",
+    "nodemon": "^1.19.4"
+  }
+}
