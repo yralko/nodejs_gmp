@@ -1,7 +1,7 @@
 
-const fs = require('fs');
-const {pipeline} = require('stream')
-const csv=require('csvtojson');
+import fs from 'fs';
+import { pipeline } from 'stream';
+import csv from 'csvtojson';
 
 const csvFilePath = __dirname + '/csv/node_mentoring_t1_2_input_example.csv';
 const outputFile = __dirname + '/output.txt';
