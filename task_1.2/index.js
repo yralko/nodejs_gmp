@@ -8,4 +8,8 @@ const writeStream = fs.createWriteStream(outputFile);
 
 csv()
   .fromFile(csvFilePath)
-  .on('data',(chunk)=> writeStream.write(chunk.toString('utf8')));
+  .on('error', (error)=> console.exception(error))
+  .on('data', (chunk)=> writeStream.write(chunk.toString('utf8')));
+
+  writeStream.on('error', (error) => console.exception(error))
+  
