@@ -1,10 +1,15 @@
 import express, { Request, Response, NextFunction } from 'express';
 import uuid from 'uuid/v1';
 import sortBy from 'lodash.sortby';
+import * as Joi from '@hapi/joi';
+import { createValidator } from 'express-joi-validation'
 import UserModel from './models/UserModel';
 import { PORT } from './constants';
+import { userCreateValidationSchema, userUpdateValidationSchema } from './validation';
 
 const users: UserModel[] = [];
+
+const validator = createValidator()
 
 const app = express();
 
@@ -29,42 +34,48 @@ app.get('/user/:id', (req: Request, res: Response, next: NextFunction) => {
     next();
 })
 
-app.post('/user/create', (req: Request, res: Response, next: NextFunction) => {
-    const { login, password, age } = req.body;
+app.post(
+    '/user/create',
+    validator.body(userCreateValidationSchema),
+    (req: Request, res: Response, next: NextFunction) => {
+        const { login, password, age } = req.body;
 
-    const isLoginExists = users.some(user => user.login === login);
+        const isLoginExists = users.some(user => user.login === login);
+        
+        if (isLoginExists) {
+            res.json(`User with login ${login} already exists`)
+        } else {
+            users.push(new UserModel(uuid(), login, password, age));
+
+            res.json('User has been created');
+        }
     
-    if (isLoginExists) {
-        res.json(`User with login ${login} already exists`)
-    } else {
-        users.push(new UserModel(uuid(), login, password, age));
-
-        res.json('User has been created');
+        next();
     }
- 
-    
+);
 
-    next();
-});
+app.post(
+    '/user/update', 
+    validator.body(userUpdateValidationSchema),
+    (req: Request, res: Response, next: NextFunction) => {
+        const {id, login, password, age } = req.body;
 
-app.post('/user/update', (req: Request, res: Response, next: NextFunction) => {
-    const {id, login, password, age } = req.body;
+        const isUserExists = users.some(user => user.id === id && !user.isDeleted);
 
-    const isUserExists = users.some(user => user.id === id && !user.isDeleted);
+        if (!isUserExists) {
+            res.status(400).json('No user has been found');
+        } else {
+            const userIndex = users.findIndex(v => v.id === id);
+            const updatedUser = new UserModel(id, login, password, age);
 
-    if (!isUserExists) {
-        res.status(400).json('No user has been found');
-    } else {
-        const userIndex = users.findIndex(v => v.id === id);
-        const updatedUser = new UserModel(id, login, password, age);
+            users[userIndex] = updatedUser;
 
-        users[userIndex] = updatedUser;
+            res.json(`User ${users[userIndex].login} has been modified`)
+        }
 
-        res.json(`User ${users[userIndex].login} has been modified`)
+        next();
     }
-
-    next();
-});
+);
 
 app.post('/user/delete', (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.body;
