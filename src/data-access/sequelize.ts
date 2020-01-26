@@ -21,6 +21,3 @@ const sequelize = new Sequelize(
 sequelize.define('user', userModel);
 
 export default sequelize;
-
-
-
