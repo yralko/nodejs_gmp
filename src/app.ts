@@ -1,6 +1,7 @@
 import express, { Express } from 'express';
 import config from './config';
 import routes from './routes';
+import sequelize from './data-access/sequelize';
 
 const app: Express = express();
 
@@ -10,4 +11,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use('/', routes.usersRoutes);
 app.use('/user', routes.userRoutes);
 
-app.listen(config.PORT, () => console.log(`Listening on port ${config.PORT}`));
+sequelize.sync()
+  .then(() => {
+    app.listen(config.PORT, () => console.log(`Listening on port ${config.PORT}`));
+  });

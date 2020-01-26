@@ -8,4 +8,5 @@ if (!envFound) {
 
 export default {
   PORT: parseInt(process.env.PORT, 10),
+  POSTGRESS_DB: process.env.POSTGRESS_DB,
 };

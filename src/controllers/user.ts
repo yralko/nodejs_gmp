@@ -1,61 +1,91 @@
 import { Request, Response, NextFunction } from 'express';
-
+import uuid from 'uuid/v1';
+import sequelize from '../data-access/sequelize';
 
 export const updateUserController = (req: Request, res: Response) => {
     const { id, login, password, age } = req.body;
 
-    // const isUserExists = users.some(user => user.id === id && !user.isDeleted);
+    sequelize.models.user.findOne({
+        where: { id }
+    })
+    .then((data: any) => {
+        if (data) {
+            return sequelize.models.user.update(
+                {
+                    login,
+                    password,
+                    age,
+                    isDeleted: false,
+                },
+                {where: { id }}
+            )
+                .then(() => res.send('User has been updated'))
+                .catch(err => {
+                    console.log(err);
+            
+                    res.send('Database error');
+                });
+        }
 
-    // if (!isUserExists) {
-    //     res.status(400).json('No user has been found');
-    // } else {
-    //     const userIndex = users.findIndex(v => v.id === id);
-    //     const updatedUser = new UserModel(id, login, password, age);
+        res.send('User has not been found')
+       
+    })
+    .catch(err => {
+        console.log(err);
 
-    //     users[userIndex] = updatedUser;
-
-    //     res.json(`User ${users[userIndex].login} has been modified`);
-    // }
+        res.send('Database error');
+    })
 };
 
-export const deleteUserController = (req: Request, res: Response, next: NextFunction) => {
-    // const { id } = req.body;
+export const deleteUserController = (req: Request, res: Response) => {
+    const { id } = req.body;
 
-    // const isUserExists = users.some(user => user.id === id && !user.isDeleted);
+    sequelize.models.user.update(
+        {isDeleted: true},
+        {where: { id }}
+    )
+    .then(() => res.send('User has been deleted'))
+    .catch(err => {
+        console.log(err);
 
-    // if (!isUserExists) {
-    //     res.status(400).json('No user has been found');
-    // } else {
-    //     const userIndex = users.findIndex(v => v.id === id);
-
-    //     users[userIndex].isDeleted = true;
-
-    //     res.json(`User ${users[userIndex].login} has been deleted`);
-    // }
+        res.send('Database error');
+    })
 };
 
-export const createUserController = (req: Request, res: Response, next: NextFunction) => {
-    // const { login, password, age } = req.body;
+export const createUserController = (req: Request, res: Response) => {
+    const { login, password, age } = req.body;
 
-    // const isLoginExists = users.some(user => user.login === login);
+    sequelize.models.user.create({
+        id: uuid(),
+        password,
+        login,
+        age,
+        isDeleted: false,
+    })
+    .then(() => res.send('User has been created'))
+    .catch(err => {
+        console.log(err);
 
-    // if (isLoginExists) {
-    //     res.json(`User with login ${login} already exists`);
-    // } else {
-    //     users.push(new UserModel(uuid(), login, password, age));
-
-    //     res.json('User has been created');
-    // }
+        res.send('Database error');
+    })
 };
 
-export const getUserByIdController = (req: Request, res: Response, next: NextFunction) => {
-    // const { id } = req.params;
-    // const user: UserModel = users.find(v => v.id === id && !v.isDeleted);
+export const getUserByIdController = (req: Request, res: Response) => {
+    const { id } = req.params;
 
-    // if (user) {
-    //     res.json(user);
-    // } else {
-    //     res.status(400).json(`No user with id ${id} has been found`);
-    // }
+    sequelize.models.user.findOne({
+        where: { id }
+    })
+    .then((data: any) => {
+        if (data && !data.dataValues.isDeleted) {
+            return res.send(data.dataValues);
+        }
+
+        res.send('The user has not been found');
+    })
+    .catch(err => {
+        console.log(err);
+
+        res.send('Database error');
+    })
 };
-

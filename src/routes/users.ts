@@ -5,7 +5,7 @@ const usersRouter = express.Router();
 
 usersRouter.get(
   '/allusers',
-  getAllUsersController,
+  (req: Request, res: Response) => getAllUsersController(res),
 );
 
 usersRouter.get(

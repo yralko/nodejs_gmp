@@ -10,13 +10,13 @@ const userRouter = express.Router();
 
 userRouter.get(
     '/:id',
-    (req: Request, res: Response, next: NextFunction) => getUserByIdController(req, res, next),    
+    (req: Request, res: Response, next: NextFunction) => getUserByIdController(req, res),    
 );
 
 userRouter.post(
     '/create',
     validator.body(userCreateValidationSchema),
-    (req: Request, res: Response, next: NextFunction) => createUserController(req, res, next),
+    (req: Request, res: Response, next: NextFunction) => createUserController(req, res),
 );
 
 userRouter.post(
@@ -27,7 +27,7 @@ userRouter.post(
 
 userRouter.post(
     '/delete',
-    (req: Request, res: Response, next: NextFunction) => deleteUserController(req, res, next)
+    (req: Request, res: Response) => deleteUserController(req, res)
 ) ;
 
 
