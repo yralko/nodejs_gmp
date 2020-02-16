@@ -10,6 +10,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/', routes.usersRoutes);
 app.use('/user', routes.userRoutes);
+app.use('/group', routes.userGroup);
 
 sequelize.sync()
   .then(() => {

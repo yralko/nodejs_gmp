@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize';
 import pg from 'pg';
 import config from '../config';
 import userModel from '../models/user';
+import groupModel from '../models/group';
+
 
 pg.defaults.ssl = true;
 
@@ -19,5 +21,6 @@ const sequelize = new Sequelize(
 );
 
 sequelize.define('user', userModel);
+sequelize.define('groups', groupModel);
 
 export default sequelize;

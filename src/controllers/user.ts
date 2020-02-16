@@ -1,40 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import uuid from 'uuid/v1';
 import sequelize from '../data-access/sequelize';
+import {updateUserServices} from '../services/userServices'
 
 export const updateUserController = (req: Request, res: Response) => {
     const { id, login, password, age } = req.body;
 
-    sequelize.models.user.findOne({
-        where: { id }
-    })
-    .then((data: any) => {
-        if (data) {
-            return sequelize.models.user.update(
-                {
-                    login,
-                    password,
-                    age,
-                    isDeleted: false,
-                },
-                {where: { id }}
-            )
-                .then(() => res.send('User has been updated'))
-                .catch(err => {
-                    console.log(err);
-            
-                    res.send('Database error');
-                });
-        }
+    const updatedUser = {
+        login,
+        password,
+        age,
+        isDeleted: false,
+    };
 
-        res.send('User has not been found')
-       
-    })
-    .catch(err => {
-        console.log(err);
-
-        res.send('Database error');
-    })
+    updateUserServices(id, updatedUser);
 };
 
 export const deleteUserController = (req: Request, res: Response) => {

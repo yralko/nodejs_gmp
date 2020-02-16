@@ -2,7 +2,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { createValidator } from 'express-joi-validation'
 import { updateUserController, deleteUserController, createUserController, getUserByIdController } from '../controllers/user';
-import { userCreateValidationSchema, userUpdateValidationSchema } from '../services/validation';
+import validation from '../services/validation';
 
 const validator = createValidator()
 
@@ -15,13 +15,13 @@ userRouter.get(
 
 userRouter.post(
     '/create',
-    validator.body(userCreateValidationSchema),
+    validator.body(validation.user.create),
     (req: Request, res: Response, next: NextFunction) => createUserController(req, res),
 );
 
 userRouter.post(
     '/update',
-    validator.body(userUpdateValidationSchema),
+    validator.body(validation.user.update),
     (req: Request, res: Response) => updateUserController(req, res),
 );
 
