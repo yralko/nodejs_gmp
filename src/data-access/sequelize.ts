@@ -1,9 +1,8 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 import pg from 'pg';
 import config from '../config';
 import userModel from '../models/user';
 import groupModel from '../models/group';
-
 
 pg.defaults.ssl = true;
 
@@ -21,6 +20,14 @@ const sequelize = new Sequelize(
 );
 
 sequelize.define('user', userModel);
-sequelize.define('groups', groupModel);
+sequelize.define('group', groupModel);
+
+sequelize.define('user_groups', {
+  role: DataTypes.STRING
+});
+
+sequelize.models.group.belongsToMany(sequelize.models.user, { through: sequelize.models.user_groups });
+sequelize.models.user.belongsToMany(sequelize.models.group, { through: sequelize.models.user_groups });
+
 
 export default sequelize;

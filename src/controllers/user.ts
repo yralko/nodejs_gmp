@@ -1,70 +1,69 @@
 import { Request, Response, NextFunction } from 'express';
 import uuid from 'uuid/v1';
 import sequelize from '../data-access/sequelize';
-import {updateUserServices} from '../services/userServices'
+import {updateUserService, deleteUserService, createUserService, findUserService} from '../services/userServices'
 
-export const updateUserController = (req: Request, res: Response) => {
+export const updateUserController = async (req: Request, res: Response) => {
     const { id, login, password, age } = req.body;
 
-    const updatedUser = {
+    const userModel = {
         login,
         password,
         age,
         isDeleted: false,
     };
 
-    updateUserServices(id, updatedUser);
+    const updatedUser = await updateUserService(id, userModel);
+
+    if (updatedUser) {
+        return res.status(200).send('User has been updated');
+    }
+
+    return res.status(404).send('User has not been found');
 };
 
-export const deleteUserController = (req: Request, res: Response) => {
+export const deleteUserController = async (req: Request, res: Response) => {
     const { id } = req.body;
 
-    sequelize.models.user.update(
-        {isDeleted: true},
-        {where: { id }}
-    )
-    .then(() => res.send('User has been deleted'))
-    .catch(err => {
-        console.log(err);
+    const deletedUser = await deleteUserService(id);
 
-        res.send('Database error');
-    })
+    if (deletedUser) {
+        return res.status(200).send('User has been deleted');
+    }
+
+    return res.status(404).send('User has not been found');
 };
 
-export const createUserController = (req: Request, res: Response) => {
+export const createUserController = async (req: Request, res: Response) => {
     const { login, password, age } = req.body;
 
-    sequelize.models.user.create({
+    const userModel = {
         id: uuid(),
         password,
         login,
         age,
         isDeleted: false,
-    })
-    .then(() => res.send('User has been created'))
-    .catch(err => {
-        console.log(err);
+    };
 
-        res.send('Database error');
-    })
+    const createdUser = await createUserService(userModel);
+
+    if (createdUser) {
+        return res.status(200).send('User has been created');
+    }
+
+    return res.status(404).send('User failed to create');
+
 };
 
-export const getUserByIdController = (req: Request, res: Response) => {
+export const getUserByIdController = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    sequelize.models.user.findOne({
-        where: { id }
-    })
-    .then((data: any) => {
-        if (data && !data.dataValues.isDeleted) {
-            return res.send(data.dataValues);
-        }
+    const foundUser = <{isDeleted: boolean}>await findUserService(id);
 
-        res.send('The user has not been found');
-    })
-    .catch(err => {
-        console.log(err);
+    
+    if (foundUser && !foundUser.isDeleted) {
+        return res.status(200).send(foundUser);
+    }
 
-        res.send('Database error');
-    })
+    return res.status(404).send('User has not been found');
 };

@@ -6,12 +6,12 @@ import sequelize from '../data-access/sequelize';
 export const updateGroupController = (req: Request, res: Response) => {
     const { id, name, permissions } = req.body;
 
-    sequelize.models.groups.findOne({
+    sequelize.models.group.findOne({
         where: { id }
     })
     .then((data: any) => {
         if (data) {
-            return sequelize.models.groups.update(
+            return sequelize.models.group.update(
                 {
                     name,
                     permissions,
@@ -39,7 +39,7 @@ export const updateGroupController = (req: Request, res: Response) => {
 export const deleteGroupController = (req: Request, res: Response) => {
     const { id } = req.body;
 
-    sequelize.models.groups.destroy(
+    sequelize.models.group.destroy(
         {where: { id }}
     )
     .then(() => res.send('User has been deleted'))
@@ -53,7 +53,7 @@ export const deleteGroupController = (req: Request, res: Response) => {
 export const createGroupController = (req: Request, res: Response) => {
     const { permissions, name } = req.body;
 
-    sequelize.models.groups.create({
+    sequelize.models.group.create({
         id: uuid(),
         name,
         permissions,
@@ -69,7 +69,7 @@ export const createGroupController = (req: Request, res: Response) => {
 export const getGroupByIdController = (req: Request, res: Response) => {
     const { id } = req.params;
 
-    sequelize.models.groups.findOne({
+    sequelize.models.group.findOne({
         where: { id }
     })
     .then((data: any) => {
