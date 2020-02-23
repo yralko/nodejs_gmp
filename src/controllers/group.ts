@@ -1,87 +1,53 @@
 import { Request, Response, NextFunction } from 'express';
-import uuid from 'uuid/v1';
-import sequelize from '../data-access/sequelize';
+
+import {updateGroupService, deleteGroupService, createGroupService, getGroupByIdService} from '../services/groupServices';
 
 
-export const updateGroupController = (req: Request, res: Response) => {
+export const updateGroupController = async (req: Request, res: Response) => {
     const { id, name, permissions } = req.body;
 
-    sequelize.models.group.findOne({
-        where: { id }
-    })
-    .then((data: any) => {
-        if (data) {
-            return sequelize.models.group.update(
-                {
-                    name,
-                    permissions,
-                },
-                {where: { id }}
-            )
-                .then(() => res.send('Group has been updated'))
-                .catch(err => {
-                    console.log(err);
-            
-                    res.send('Database error');
-                });
-        }
+    const updatedGroup = await updateGroupService(id, name, permissions);
 
-        res.send('User has not been found')
-       
-    })
-    .catch(err => {
-        console.log(err);
+    if (updatedGroup) {
+        return res.status(200).send('Group has been updated');
+    }
 
-        res.send('Database error');
-    })
+    return res.status(404).send('Group update failed');
 };
 
-export const deleteGroupController = (req: Request, res: Response) => {
+export const deleteGroupController = async (req: Request, res: Response) => {
     const { id } = req.body;
 
-    sequelize.models.group.destroy(
-        {where: { id }}
-    )
-    .then(() => res.send('User has been deleted'))
-    .catch(err => {
-        console.log(err);
+    const deletedGroup = await deleteGroupService(id);
 
-        res.send('Database error');
-    })
+    if (deletedGroup) {
+        return res.status(200).send('Group has been deleted');
+    }
+
+    return res.status(404).send('Group deletion failed');
 };
 
-export const createGroupController = (req: Request, res: Response) => {
+export const createGroupController = async (req: Request, res: Response) => {
     const { permissions, name } = req.body;
 
-    sequelize.models.group.create({
-        id: uuid(),
-        name,
-        permissions,
-    })
-    .then(() => res.send('Group has been created'))
-    .catch(err => {
-        console.log(err);
+    const createdGroup = await createGroupService(permissions, name);
 
-        res.send('Database error');
-    })
+    if (createdGroup) {
+        return res.status(200).send('Group has been created');
+    }
+
+    return res.status(404).send('Group creation failed');
+
 };
 
-export const getGroupByIdController = (req: Request, res: Response) => {
+export const getGroupByIdController = async (req: Request, res: Response) => {
     const { id } = req.params;
 
-    sequelize.models.group.findOne({
-        where: { id }
-    })
-    .then((data: any) => {
-        if (data) {
-            return res.send(data.dataValues);
-        }
+    const foundGroup = await getGroupByIdService(id);
+    
+    if (foundGroup) {
+        return res.status(200).send(foundGroup);
+    }
 
-        res.send('The user has not been found');
-    })
-    .catch(err => {
-        console.log(err);
-
-        res.send('Database error');
-    })
+    return res.status(404).send('Group has not been found');
 };

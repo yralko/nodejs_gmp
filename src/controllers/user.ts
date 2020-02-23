@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import uuid from 'uuid/v1';
-import sequelize from '../data-access/sequelize';
 import {updateUserService, deleteUserService, createUserService, findUserService} from '../services/userServices'
 
 export const updateUserController = async (req: Request, res: Response) => {

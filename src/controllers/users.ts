@@ -1,48 +1,24 @@
 import { Request, Response } from 'express';
-import { Sequelize } from 'sequelize';
-import sequelize from '../data-access/sequelize';
+import { userAutosuggestService, getAllUsersService } from '../services/usersServices';
 
-export const usersAutosuggestController = (req: Request, res: Response) => {
+export const usersAutosuggestController = async (req: Request, res: Response) => {
   const { loginSubstring, limit } = req.query;
 
-  sequelize.models.user.findAll(
-    {
-      where: {
-        login: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('login')), 'LIKE', '%' + loginSubstring + '%')
-      },
-      limit
-    },
-  )
-  .then((data: any) => {
-    if (data) {
-      const users = data.map(user => user.dataValues);
+  const matchedUsers = await userAutosuggestService('login', loginSubstring, limit);
 
-      return res.send(users);
-    }
-
-    res.send('No users have been found');
-  })
-  .catch(err => {
-      console.log(err);
-
-      res.send('Database error');
-  })
+  if (matchedUsers) {
+    res.status(200).send(matchedUsers)
+  }
+  
+  return res.status(404).send('Users have not been found');
 }
 
-export const getAllUsersController = (res: Response) => {
-  sequelize.models.user.findAll()
-    .then((data: any) => {
-      if (data) {
-        const users = data.map(user => user.dataValues);
-  
-        return res.send(users);
-      }
-  
-      res.send('No users have been found');
-  })
-  .catch(err => {
-    console.log(err);
+export const getAllUsersController = async (res: Response) => {
+  const allUsers = await getAllUsersService();
 
-    res.send('Database error');
-  })
+  if (allUsers) {
+    res.status(200).send(allUsers)
+  }
+  
+  return res.status(404).send('Users have not been found');
 }
